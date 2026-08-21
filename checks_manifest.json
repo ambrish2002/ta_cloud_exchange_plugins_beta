@@ -2,7 +2,6 @@
   "schema_version": 1,
   "manifest_version": "2026.07.30",
   "default_version": "7.0.0",
-  "credit_model": null,
   "docs": {
     "install": "https://docs.netskope.com/en/install-cloud-exchange",
     "upgrade": "https://docs.netskope.com/en/upgrade-cloud-exchange",
@@ -53,8 +52,9 @@
           "type": "min_resource",
           "fact": "var_disk.free_gb",
           "minimum": 20,
+          "warn_on_shortfall": true,
           "message": "Free disk under /var (GB)",
-          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem."
+          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem. Where /var is its own disk, a shortfall here can stall image pulls and logging even when the deployment filesystem is fine."
         },
         {
           "id": "openssl-version",
@@ -517,10 +517,18 @@
           "type": "os_supported",
           "allowed": [
             {
-              "id": "ubuntu"
+              "id": "ubuntu",
+              "majors": [
+                "20",
+                "22"
+              ]
             },
             {
               "id": "rhel",
+              "majors": [
+                "8",
+                "9"
+              ],
               "aliases": [
                 "redhat",
                 "rhel",
@@ -528,8 +536,9 @@
               ]
             }
           ],
+          "warn_on_version_mismatch": true,
           "message": "Host operating system",
-          "remedy": "Cloud Exchange 5.1.2 is supported on Ubuntu and RHEL hosts. Ubuntu 20.04/22.04 and RHEL 8/9 are the tested versions; other versions of those distributions are permitted but untested."
+          "remedy": "Cloud Exchange 5.1.2 is supported on Ubuntu 20.04/22.04 and RHEL 8/9. An untested version of Ubuntu or RHEL is permitted -- setup warns and proceeds -- but any other distribution is not supported. Move to a tested version for a supported configuration."
         },
         {
           "id": "no-local-repo-changes",
@@ -578,14 +587,14 @@
           "type": "bool_fact",
           "fact": "venv_module_available",
           "message": "Python venv module availability",
-          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create .cevenv."
+          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create its virtual environment."
         },
         {
           "id": "ensurepip-module-available",
           "type": "bool_fact",
           "fact": "ensurepip_module_available",
           "message": "Python ensurepip module availability",
-          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside .cevenv."
+          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside its virtual environment."
         },
         {
           "id": "podman-plugin-installed",
@@ -600,6 +609,9 @@
           "applies_when": {
             "detected_runtime": [
               "podman"
+            ],
+            "os_id": [
+              "rhel"
             ]
           },
           "not_verified_is_fatal": true
@@ -650,8 +662,9 @@
           "type": "min_resource",
           "fact": "var_disk.free_gb",
           "minimum": 20,
+          "warn_on_shortfall": true,
           "message": "Free disk under /var (GB)",
-          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem."
+          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem. Where /var is its own disk, a shortfall here can stall image pulls and logging even when the deployment filesystem is fine."
         },
         {
           "id": "openssl-version",
@@ -1158,7 +1171,7 @@
           "fact": "venv_python_version",
           "minimum": "3.8",
           "message": "Python version in the CE virtual environment",
-          "remedy": "The existing .cevenv virtual environment is built against an interpreter older than this Cloud Exchange version requires. Remove .cevenv so setup recreates it with a supported Python."
+          "remedy": "The existing virtual environment is built against an interpreter older than this Cloud Exchange version requires. Remove it so setup recreates it with a supported Python."
         },
         {
           "id": "setup-sudo-python-version",
@@ -1223,14 +1236,14 @@
           "type": "bool_fact",
           "fact": "venv_module_available",
           "message": "Python venv module availability",
-          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create .cevenv."
+          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create its virtual environment."
         },
         {
           "id": "ensurepip-module-available",
           "type": "bool_fact",
           "fact": "ensurepip_module_available",
           "message": "Python ensurepip module availability",
-          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside .cevenv."
+          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside its virtual environment."
         },
         {
           "id": "podman-plugin-installed",
@@ -1245,6 +1258,9 @@
           "applies_when": {
             "detected_runtime": [
               "podman"
+            ],
+            "os_id": [
+              "rhel"
             ]
           },
           "not_verified_is_fatal": true
@@ -1295,8 +1311,9 @@
           "type": "min_resource",
           "fact": "var_disk.free_gb",
           "minimum": 20,
+          "warn_on_shortfall": true,
           "message": "Free disk under /var (GB)",
-          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem."
+          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem. Where /var is its own disk, a shortfall here can stall image pulls and logging even when the deployment filesystem is fine."
         },
         {
           "id": "openssl-version",
@@ -1791,7 +1808,7 @@
           "fact": "venv_python_version",
           "minimum": "3.11",
           "message": "Python version in the CE virtual environment",
-          "remedy": "The existing .cevenv virtual environment is built against an interpreter older than this Cloud Exchange version requires. Remove .cevenv so setup recreates it with a supported Python."
+          "remedy": "The existing virtual environment is built against an interpreter older than this Cloud Exchange version requires. Remove it so setup recreates it with a supported Python."
         },
         {
           "id": "setup-sudo-python-version",
@@ -1856,14 +1873,14 @@
           "type": "bool_fact",
           "fact": "venv_module_available",
           "message": "Python venv module availability",
-          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create .cevenv."
+          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create its virtual environment."
         },
         {
           "id": "ensurepip-module-available",
           "type": "bool_fact",
           "fact": "ensurepip_module_available",
           "message": "Python ensurepip module availability",
-          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside .cevenv."
+          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside its virtual environment."
         },
         {
           "id": "podman-plugin-installed",
@@ -1878,6 +1895,9 @@
           "applies_when": {
             "detected_runtime": [
               "podman"
+            ],
+            "os_id": [
+              "rhel"
             ]
           },
           "not_verified_is_fatal": true
@@ -1928,8 +1948,9 @@
           "type": "min_resource",
           "fact": "var_disk.free_gb",
           "minimum": 20,
+          "warn_on_shortfall": true,
           "message": "Free disk under /var (GB)",
-          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem."
+          "remedy": "Container images and logs live under /var. Free space there or grow the filesystem. Where /var is its own disk, a shortfall here can stall image pulls and logging even when the deployment filesystem is fine."
         },
         {
           "id": "openssl-version",
@@ -2417,7 +2438,7 @@
           "fact": "venv_python_version",
           "minimum": "3.12",
           "message": "Python version in the CE virtual environment",
-          "remedy": "The existing .cevenv virtual environment is built against an interpreter older than this Cloud Exchange version requires. Remove .cevenv so setup recreates it with a supported Python."
+          "remedy": "The existing virtual environment is built against an interpreter older than this Cloud Exchange version requires. Remove it so setup recreates it with a supported Python."
         },
         {
           "id": "setup-sudo-python-version",
@@ -2482,14 +2503,14 @@
           "type": "bool_fact",
           "fact": "venv_module_available",
           "message": "Python venv module availability",
-          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create .cevenv."
+          "remedy": "Install python3-venv (or the equivalent package for your operating system). The setup script requires the venv module to create its virtual environment."
         },
         {
           "id": "ensurepip-module-available",
           "type": "bool_fact",
           "fact": "ensurepip_module_available",
           "message": "Python ensurepip module availability",
-          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside .cevenv."
+          "remedy": "Install python3-ensurepip (or the equivalent package for your operating system). The setup script requires ensurepip to bootstrap pip inside its virtual environment."
         },
         {
           "id": "podman-plugin-installed",
@@ -2504,6 +2525,9 @@
           "applies_when": {
             "detected_runtime": [
               "podman"
+            ],
+            "os_id": [
+              "rhel"
             ]
           },
           "not_verified_is_fatal": true
